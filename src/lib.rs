@@ -40,10 +40,8 @@
 #[cfg(all(test, feature = "unstable"))] extern crate test;
 
 extern crate arrayvec;
-extern crate libc;
 extern crate rand;
 
-use libc::size_t;
 use std::{error, fmt, ops, ptr};
 use rand::Rng;
 
@@ -92,7 +90,7 @@ impl Signature {
 
         unsafe {
             if ffi::secp256k1_ecdsa_signature_parse_der(secp.ctx, &mut ret,
-                                                        data.as_ptr(), data.len() as libc::size_t) == 1 {
+                                                        data.as_ptr(), data.len() as usize) == 1 {
                 Ok(Signature(ret))
             } else {
                 Err(Error::InvalidSignature)
@@ -108,7 +106,7 @@ impl Signature {
         unsafe {
             let mut ret = ffi::Signature::blank();
             if ffi::ecdsa_signature_parse_der_lax(secp.ctx, &mut ret,
-                                                  data.as_ptr(), data.len() as libc::size_t) == 1 {
+                                                  data.as_ptr(), data.len() as usize) == 1 {
                 Ok(Signature(ret))
             } else {
                 Err(Error::InvalidSignature)
@@ -158,7 +156,7 @@ impl Signature {
     /// Serializes the signature in DER format
     pub fn serialize_der(&self, secp: &Secp256k1) -> Vec<u8> {
         let mut ret = Vec::with_capacity(72);
-        let mut len: size_t = ret.capacity() as size_t;
+        let mut len: usize = ret.capacity() as usize;
         unsafe {
             let err = ffi::secp256k1_ecdsa_signature_serialize_der(secp.ctx, ret.as_mut_ptr(),
                                                                    &mut len, self.as_ptr());
