@@ -40,8 +40,6 @@
 #[cfg(all(test, feature = "unstable"))] extern crate test;
 
 extern crate arrayvec;
-extern crate rustc_serialize as serialize;
-
 extern crate libc;
 extern crate rand;
 
@@ -539,8 +537,8 @@ impl Secp256k1 {
 
 #[cfg(test)]
 mod tests {
+    extern crate hex;
     use rand::{Rng, thread_rng};
-    use serialize::hex::FromHex;
 
     use key::{SecretKey, PublicKey};
     use super::constants;
@@ -548,7 +546,7 @@ mod tests {
     use super::Error::{InvalidMessage, InvalidPublicKey, IncorrectSignature, InvalidSignature,
                        IncapableContext};
 
-    macro_rules! hex (($hex:expr) => ($hex.from_hex().unwrap()));
+    macro_rules! hex (($hex:expr) => (hex::decode($hex).unwrap()));
 
     #[test]
     fn capabilities() {
