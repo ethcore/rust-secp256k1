@@ -31,6 +31,8 @@ use std::path::PathBuf;
 const OS: &'static str = "darwin";
 #[cfg(target_os = "linux")]
 const OS: &'static str = "linux";
+#[cfg(target_os = "freebsd")]
+const OS: &'static str = "freebsd";
 #[cfg(target_os = "windows")]
 const OS: &'static str = "windows";
 
