@@ -13,6 +13,7 @@
 // If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 //
 
+#![cfg_attr(not(feature = "std"), no_std)]
 //! # Secp256k1
 //! Rust bindings for Pieter Wuille's secp256k1 library, which is used for
 //! fast and accurate manipulation of ECDSA signatures on the secp256k1
@@ -40,10 +41,20 @@
 #[cfg(all(test, feature = "unstable"))] extern crate test;
 
 extern crate arrayvec;
+extern crate sr_std as rstd;
+extern crate libc;
 
+#[cfg(feature = "std")]
 pub extern crate rand;
 
-use std::{error, fmt, ops, ptr};
+use rstd::{ops, ptr};
+use rstd::prelude::*;
+
+#[cfg(feature = "std")]
+use rstd::fmt;
+#[cfg(feature = "std")]
+use std::error;
+#[cfg(feature = "std")]
 use rand::Rng;
 
 #[macro_use]
@@ -55,15 +66,18 @@ pub mod key;
 pub mod schnorr;
 
 /// A tag used for recovering the public key from a compact signature
-#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+#[cfg_attr(feature = "std", derive(Debug))]
+#[derive(Copy, Clone, PartialEq, Eq)]
 pub struct RecoveryId(i32);
 
 /// An ECDSA signature
-#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+#[cfg_attr(feature = "std", derive(Debug))]
+#[derive(Copy, Clone, PartialEq, Eq)]
 pub struct Signature(ffi::Signature);
 
 /// An ECDSA signature with a recovery ID for pubkey recovery
-#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+#[cfg_attr(feature = "std", derive(Debug))]
+#[derive(Copy, Clone, PartialEq, Eq)]
 pub struct RecoverableSignature(ffi::RecoverableSignature);
 
 impl RecoveryId {
@@ -322,12 +336,14 @@ pub enum Error {
 }
 
 // Passthrough Debug to Display, since errors should be user-visible
+#[cfg(feature = "std")]
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         f.write_str(error::Error::description(self))
     }
 }
 
+#[cfg(feature = "std")]
 impl error::Error for Error {
     fn cause(&self) -> Option<&error::Error> { None }
 
@@ -369,6 +385,7 @@ pub enum ContextFlag {
 }
 
 // Passthrough Debug to Display, since caps should be user-visible
+#[cfg(feature = "std")]
 impl fmt::Display for ContextFlag {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         fmt::Debug::fmt(self, f)
@@ -389,6 +406,8 @@ impl PartialEq for Secp256k1 {
 }
 impl Eq for Secp256k1 { }
 
+// Passthrough Debug to Display, since caps should be user-visible
+#[cfg(feature = "std")]
 impl fmt::Debug for Secp256k1 {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         write!(f, "Secp256k1 {{ [private], caps: {:?} }}", self.caps)
@@ -426,6 +445,7 @@ impl Secp256k1 {
 
     /// (Re)randomizes the Secp256k1 context for cheap sidechannel resistence;
     /// see comment in libsecp256k1 commit d2275795f by Gregory Maxwell
+    #[cfg(feature = "std")]
     pub fn randomize<R: Rng>(&mut self, rng: &mut R) {
         let mut seed = [0; 32];
         rng.fill_bytes(&mut seed);
@@ -447,6 +467,7 @@ impl Secp256k1 {
     /// and `key::PublicKey::from_secret_key`; call those functions directly for
     /// batch key generation. Requires a signing-capable context.
     #[inline]
+    #[cfg(feature = "std")]
     pub fn generate_keypair<R: Rng>(&self, rng: &mut R)
                                    -> Result<(key::SecretKey, key::PublicKey), Error> {
         let sk = key::SecretKey::new(self, rng);
@@ -533,7 +554,7 @@ impl Secp256k1 {
     }
 }
 
-
+#[cfg(feature = "std")]
 #[cfg(test)]
 mod tests {
     extern crate hex;

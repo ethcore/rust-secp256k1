@@ -55,8 +55,8 @@ macro_rules! impl_array_newtype {
             #[inline]
             fn clone(&self) -> $thing {
                 unsafe {
-                    use std::intrinsics::copy_nonoverlapping;
-                    use std::mem;
+                    use rstd::ptr::copy_nonoverlapping;
+                    use rstd::mem;
                     let mut ret: $thing = mem::uninitialized();
                     copy_nonoverlapping(self.as_ptr(),
                                         ret.as_mut_ptr(),
@@ -66,7 +66,7 @@ macro_rules! impl_array_newtype {
             }
         }
 
-        impl ::std::ops::Index<usize> for $thing {
+        impl ::rstd::ops::Index<usize> for $thing {
             type Output = $ty;
 
             #[inline]
@@ -76,41 +76,41 @@ macro_rules! impl_array_newtype {
             }
         }
 
-        impl ::std::ops::Index<::std::ops::Range<usize>> for $thing {
+        impl ::rstd::ops::Index<::rstd::ops::Range<usize>> for $thing {
             type Output = [$ty];
 
             #[inline]
-            fn index(&self, index: ::std::ops::Range<usize>) -> &[$ty] {
+            fn index(&self, index: ::rstd::ops::Range<usize>) -> &[$ty] {
                 let &$thing(ref dat) = self;
                 &dat[index]
             }
         }
 
-        impl ::std::ops::Index<::std::ops::RangeTo<usize>> for $thing {
+        impl ::rstd::ops::Index<::rstd::ops::RangeTo<usize>> for $thing {
             type Output = [$ty];
 
             #[inline]
-            fn index(&self, index: ::std::ops::RangeTo<usize>) -> &[$ty] {
+            fn index(&self, index: ::rstd::ops::RangeTo<usize>) -> &[$ty] {
                 let &$thing(ref dat) = self;
                 &dat[index]
             }
         }
 
-        impl ::std::ops::Index<::std::ops::RangeFrom<usize>> for $thing {
+        impl ::rstd::ops::Index<::rstd::ops::RangeFrom<usize>> for $thing {
             type Output = [$ty];
 
             #[inline]
-            fn index(&self, index: ::std::ops::RangeFrom<usize>) -> &[$ty] {
+            fn index(&self, index: ::rstd::ops::RangeFrom<usize>) -> &[$ty] {
                 let &$thing(ref dat) = self;
                 &dat[index]
             }
         }
 
-        impl ::std::ops::Index<::std::ops::RangeFull> for $thing {
+        impl ::rstd::ops::Index<::rstd::ops::RangeFull> for $thing {
             type Output = [$ty];
 
             #[inline]
-            fn index(&self, _: ::std::ops::RangeFull) -> &[$ty] {
+            fn index(&self, _: ::rstd::ops::RangeFull) -> &[$ty] {
                 let &$thing(ref dat) = self;
                 &dat[..]
             }
@@ -120,6 +120,7 @@ macro_rules! impl_array_newtype {
 
 macro_rules! impl_pretty_debug {
     ($thing:ident) => {
+        #[cfg(feature = "std")]
         impl ::std::fmt::Debug for $thing {
             fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
                 try!(write!(f, "{}(", stringify!($thing)));
@@ -134,6 +135,7 @@ macro_rules! impl_pretty_debug {
 
 macro_rules! impl_raw_debug {
     ($thing:ident) => {
+        #[cfg(feature = "std")]
         impl ::std::fmt::Debug for $thing {
             fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
                 for i in self[..].iter().cloned() {

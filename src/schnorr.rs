@@ -24,8 +24,8 @@ use constants;
 use ffi;
 use key::{SecretKey, PublicKey};
 
-use std::{mem, ptr};
-use std::convert::From;
+use rstd::{mem, ptr};
+use rstd::prelude::*;
 
 /// A Schnorr signature.
 pub struct Signature([u8; constants::SCHNORR_SIGNATURE_SIZE]);
@@ -101,6 +101,7 @@ impl Secp256k1 {
     }
 }
 
+#[cfg(feature = "std")]
 #[cfg(test)]
 mod tests {
     use rand::{Rng, thread_rng};

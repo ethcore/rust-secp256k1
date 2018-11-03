@@ -16,6 +16,7 @@
 //! # Public and secret keys
 
 use arrayvec::ArrayVec;
+#[cfg(feature = "std")]
 use rand::Rng;
 
 use super::{Secp256k1, ContextFlag};
@@ -61,9 +62,11 @@ pub const MINUS_ONE_KEY: SecretKey = SecretKey([0xff, 0xff, 0xff, 0xff, 0xff, 0x
                                                 0xbf, 0xd2, 0x5e, 0x8c, 0xd0, 0x36, 0x41, 0x40]);
 
 /// A Secp256k1 public key, used for verification of signatures
-#[derive(Copy, Clone, PartialEq, Eq, Debug, Hash)]
+#[cfg_attr(feature = "std", derive(Debug))]
+#[derive(Copy, Clone, PartialEq, Eq, Hash)]
 pub struct PublicKey(ffi::PublicKey);
 
+#[cfg(feature = "std")]
 fn random_32_bytes<R: Rng>(rng: &mut R) -> [u8; 32] {
     let mut ret = [0u8; 32];
     rng.fill_bytes(&mut ret);
@@ -73,6 +76,7 @@ fn random_32_bytes<R: Rng>(rng: &mut R) -> [u8; 32] {
 impl SecretKey {
     /// Creates a new random secret key
     #[inline]
+    #[cfg(feature = "std")]
     pub fn new<R: Rng>(secp: &Secp256k1, rng: &mut R) -> SecretKey {
         let mut data = random_32_bytes(rng);
         unsafe {
@@ -278,13 +282,14 @@ impl From<ffi::PublicKey> for PublicKey {
     }
 }
 
+#[cfg(feature = "std")]
 #[cfg(test)]
 mod test {
     use super::super::{Secp256k1, ContextFlag};
     use super::super::Error::{InvalidPublicKey, InvalidSecretKey, IncapableContext};
     use super::{PublicKey, SecretKey};
     use super::super::constants;
-
+    
     use rand::{Rng, thread_rng};
 
     #[test]
@@ -419,7 +424,7 @@ mod test {
         assert_eq!(PublicKey::from_slice(&s, &[0x55; constants::COMPRESSED_PUBLIC_KEY_SIZE]),
                    Err(InvalidPublicKey));
     }
-
+    
     #[test]
     fn test_debug_output() {
         struct DumbRng(u32);
@@ -454,7 +459,7 @@ mod test {
         assert_eq!(&pk1.serialize_vec(&s, true)[..],
                    &[2, 149, 16, 196, 140, 38, 92, 239, 179, 65, 59, 224, 230, 183, 91, 238, 240, 46, 186, 252, 175, 102, 52, 249, 98, 178, 123, 72, 50, 171, 196, 254, 236][..]);
     }
-
+    
     #[test]
     fn test_addition() {
         let s = Secp256k1::new();

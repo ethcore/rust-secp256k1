@@ -16,14 +16,15 @@
 //! Support for shared secret computations
 //!
 
-use std::ops;
+use rstd::ops;
 
 use super::Secp256k1;
 use key::{SecretKey, PublicKey};
 use ffi;
 
 /// A tag used for recovering the public key from a compact signature
-#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+#[cfg_attr(feature = "std", derive(Debug))]
+#[derive(Copy, Clone, PartialEq, Eq)]
 #[repr(C)]
 pub struct SharedSecret(ffi::SharedSecret);
 
@@ -103,6 +104,7 @@ impl ops::Index<ops::RangeFull> for SharedSecret {
 }
 
 #[cfg(test)]
+#[cfg(feature = "std")]
 mod tests {
     use rand::thread_rng;
     use super::SharedSecret;
