@@ -21,10 +21,10 @@
 //! and its derivatives.
 //!
 
-#![crate_type = "lib"]
-#![crate_type = "rlib"]
-#![crate_type = "dylib"]
-#![crate_name = "secp256k1"]
+//#![crate_type = "lib"]
+//#![crate_type = "rlib"]
+//#![crate_type = "cdylib"]
+//#![crate_name = "secp256k1"]
 
 // Coding conventions
 #![deny(non_upper_case_globals)]
@@ -32,6 +32,9 @@
 #![deny(non_snake_case)]
 #![deny(unused_mut)]
 #![warn(missing_docs)]
+
+#![cfg_attr(not(feature = "std"), feature(alloc_error_handler))]
+#![cfg_attr(not(feature = "std"), feature(core_intrinsics))]
 
 #![cfg_attr(feature = "dev", allow(unstable_features))]
 #![cfg_attr(feature = "dev", feature(plugin))]
@@ -42,7 +45,33 @@
 
 extern crate arrayvec;
 extern crate sr_std as rstd;
-extern crate libc;
+
+#[macro_use]
+extern crate cfg_if;
+cfg_if! {
+    if #[cfg(any(all(target_arch = "wasm32", not(target_os = "emscripten"))))] {
+        mod libc {
+            #![allow(non_camel_case_types)]
+
+            // Use repr(u8) as LLVM expects `void*` to be the same as `i8*` to help enable
+            // more optimization opportunities around it recognizing things like
+            // malloc/free.
+            #[repr(u8)]
+            pub enum c_void {
+                // Two dummy variants so the #[repr] attribute can be used.
+                #[doc(hidden)]
+                __variant1,
+                #[doc(hidden)]
+                __variant2,
+            }
+            pub type c_int = i32;
+            pub type c_uint = u32;
+            pub type c_uchar = u8;
+        }
+    } else {
+        extern crate libc;
+    }
+}
 
 #[cfg(feature = "std")]
 pub extern crate rand;
@@ -64,6 +93,9 @@ pub mod ecdh;
 pub mod ffi;
 pub mod key;
 pub mod schnorr;
+
+#[cfg(not(feature = "std"))]
+include!("../without_std.rs");
 
 /// A tag used for recovering the public key from a compact signature
 #[cfg_attr(feature = "std", derive(Debug))]
