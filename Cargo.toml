@@ -19,7 +19,10 @@ cfg-if = { version = "0.1" }
 [lib]
 name = "secp256k1"
 path = "src/lib.rs"
-crate_type = ["cdylib"]
+# native platform target
+crate-type = ["lib"]
+# wasm32-unknown-unknown target
+#crate-type = ["cdylib"]
 
 [dependencies]
 sr-std = { git = "https://github.com/chainx-org/sr-std", default-features = false }
