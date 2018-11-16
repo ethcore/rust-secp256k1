@@ -24,8 +24,15 @@ use constants;
 use ffi;
 use key::{SecretKey, PublicKey};
 
-use rstd::{mem, ptr};
-use rstd::prelude::*;
+cfg_if! {
+    if #[cfg(feature = "std")] {
+        use std::{mem, ptr};
+        use std::convert::From;
+    } else {
+        use core::{mem, ptr};
+        use alloc::vec::Vec;
+    }
+}
 
 /// A Schnorr signature.
 pub struct Signature([u8; constants::SCHNORR_SIGNATURE_SIZE]);
@@ -180,4 +187,3 @@ mod tests {
         assert_eq!(sig1, sig2);
     }
 }
-

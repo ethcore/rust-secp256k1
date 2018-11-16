@@ -284,6 +284,7 @@ impl From<ffi::PublicKey> for PublicKey {
 
 #[cfg(feature = "std")]
 #[cfg(test)]
+#[cfg(feature = "std")]
 mod test {
     use super::super::{Secp256k1, ContextFlag};
     use super::super::Error::{InvalidPublicKey, InvalidSecretKey, IncapableContext};

@@ -16,7 +16,13 @@
 //! Support for shared secret computations
 //!
 
-use rstd::ops;
+cfg_if! {
+    if #[cfg(feature = "std")] {
+        use std::ops;
+    } else {
+        use core::ops;
+    }
+}
 
 use super::Secp256k1;
 use key::{SecretKey, PublicKey};

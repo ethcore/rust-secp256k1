@@ -19,31 +19,26 @@ cfg-if = { version = "0.1" }
 [lib]
 name = "secp256k1"
 path = "src/lib.rs"
-# native platform target
-crate-type = ["lib"]
-# wasm32-unknown-unknown target
-#crate-type = ["cdylib"]
-
-[dependencies]
-sr-std = { git = "https://github.com/chainx-org/sr-std", default-features = false }
-libc = { git = "https://github.com/rust-lang/libc", default-features = false }
-arrayvec = { version = "0.4", default-features = false }
-cfg-if = { version = "0.1" }
-clippy = { version = "0.0", optional = true }
-rand = { version = "0.4", optional = true }
-
-[dev-dependencies]
-hex = "0.3.1"
+crate-type = [ "lib", "rlib"]
 
 [features]
-default = []
 unstable = []
+default = ["std"]
 dev = ["clippy"]
 std = [
-    "sr-std/std",
     "arrayvec/std",
     "libc/use_std",
     "clippy",
     "rand",
 ]
 
+[dependencies]
+arrayvec = { version = "0.4", default-features = false }
+clippy = { version = "0.0", optional = true }
+rand = { version = "0.4", optional = true }
+libc = { version = "0.2", default-features = false }
+wee_alloc = "0.4"
+cfg-if = "0.1"
+
+[dev-dependencies]
+hex = "0.3.1"

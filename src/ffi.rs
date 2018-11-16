@@ -16,8 +16,13 @@
 //! # FFI bindings
 //! Direct bindings to the underlying C library functions. These should
 //! not be needed for most users.
-use rstd::mem;
-use rstd::hash;
+cfg_if! {
+    if #[cfg(feature = "std")] {
+        use std::{mem, hash};
+    } else {
+        use core::{mem, hash};
+    }
+}
 use libc::{c_int, c_uchar, c_uint, c_void};
 
 /// Flag for context to enable no precomputation
@@ -276,4 +281,3 @@ extern "C" {
                           scalar: *const c_uchar)
                           -> c_int;
 }
-

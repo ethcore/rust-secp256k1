@@ -13,7 +13,6 @@
 // If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 //
 
-#![cfg_attr(not(feature = "std"), no_std)]
 //! # Secp256k1
 //! Rust bindings for Pieter Wuille's secp256k1 library, which is used for
 //! fast and accurate manipulation of ECDSA signatures on the secp256k1
@@ -21,10 +20,11 @@
 //! and its derivatives.
 //!
 
-//#![crate_type = "lib"]
-//#![crate_type = "rlib"]
-//#![crate_type = "cdylib"]
-//#![crate_name = "secp256k1"]
+#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), feature(alloc))]
+#![cfg_attr(not(feature = "std"), feature(alloc_error_handler))]
+#![cfg_attr(not(feature = "std"), feature(core_intrinsics))]
+#![cfg_attr(not(feature = "std"), feature(lang_items))]
 
 // Coding conventions
 #![deny(non_upper_case_globals)]
@@ -32,9 +32,6 @@
 #![deny(non_snake_case)]
 #![deny(unused_mut)]
 #![warn(missing_docs)]
-
-#![cfg_attr(not(feature = "std"), feature(alloc_error_handler))]
-#![cfg_attr(not(feature = "std"), feature(core_intrinsics))]
 
 #![cfg_attr(feature = "dev", allow(unstable_features))]
 #![cfg_attr(feature = "dev", feature(plugin))]
@@ -44,18 +41,29 @@
 #[cfg(all(test, feature = "unstable"))] extern crate test;
 
 extern crate arrayvec;
-extern crate sr_std as rstd;
 
 #[macro_use]
 extern crate cfg_if;
 cfg_if! {
-    if #[cfg(any(all(target_arch = "wasm32", not(target_os = "emscripten"))))] {
+    if #[cfg(feature = "std")] {
+        pub extern crate rand;
+        use rand::Rng;
+        use std::{error, fmt, ops, ptr};
+    } else {
+        extern crate alloc;
+        // Compile the project for target wasm32-unknown-unknown individually,
+        // need to cancel the comment below, and set crate-type = ["cdylib"] in Cargo.toml.
+//        extern crate wee_alloc;
+//        include!("without_std.rs");
+        use alloc::vec::Vec;
+        use core::{fmt, ops, ptr};
+    }
+}
+
+cfg_if! {
+    if #[cfg(any(target_arch = "wasm32", not(target_os = "emscripten")))] {
         mod libc {
             #![allow(non_camel_case_types)]
-
-            // Use repr(u8) as LLVM expects `void*` to be the same as `i8*` to help enable
-            // more optimization opportunities around it recognizing things like
-            // malloc/free.
             #[repr(u8)]
             pub enum c_void {
                 // Two dummy variants so the #[repr] attribute can be used.
@@ -73,19 +81,6 @@ cfg_if! {
     }
 }
 
-#[cfg(feature = "std")]
-pub extern crate rand;
-
-use rstd::{ops, ptr};
-use rstd::prelude::*;
-
-#[cfg(feature = "std")]
-use rstd::fmt;
-#[cfg(feature = "std")]
-use std::error;
-#[cfg(feature = "std")]
-use rand::Rng;
-
 #[macro_use]
 mod macros;
 pub mod constants;
@@ -94,12 +89,9 @@ pub mod ffi;
 pub mod key;
 pub mod schnorr;
 
-#[cfg(not(feature = "std"))]
-include!("../without_std.rs");
-
 /// A tag used for recovering the public key from a compact signature
 #[cfg_attr(feature = "std", derive(Debug))]
-#[derive(Copy, Clone, PartialEq, Eq)]
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct RecoveryId(i32);
 
 /// An ECDSA signature
@@ -995,4 +987,3 @@ mod benches {
         });
     }
 }
-
