@@ -91,7 +91,7 @@ pub mod schnorr;
 
 /// A tag used for recovering the public key from a compact signature
 #[cfg_attr(feature = "std", derive(Debug))]
-#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+#[derive(Copy, Clone, PartialEq, Eq)]
 pub struct RecoveryId(i32);
 
 /// An ECDSA signature
