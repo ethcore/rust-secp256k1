@@ -77,9 +77,6 @@ impl_raw_debug!(PublicKey);
 impl PublicKey {
     /// Create a new (zeroed) public key usable for the FFI interface
     pub fn new() -> PublicKey { PublicKey([0; 64]) }
-    /// Create a new (uninitialized) public key usable for the FFI interface
-    #[deprecated(since = "0.7", note = "Please use the new function instead")]
-    pub unsafe fn blank() -> PublicKey { PublicKey::new() }
 }
 
 impl hash::Hash for PublicKey {
@@ -103,17 +100,11 @@ impl_raw_debug!(RecoverableSignature);
 impl Signature {
     /// Create a new (zeroed) signature usable for the FFI interface
     pub fn new() -> Signature { Signature([0; 64]) }
-    /// Create a new (uninitialized) signature usable for the FFI interface
-    #[deprecated(since = "0.7", note = "Please use the new function instead")]
-    pub unsafe fn blank() -> Signature { Signature::new() }
 }
 
 impl RecoverableSignature {
     /// Create a new (zeroed) signature usable for the FFI interface
     pub fn new() -> RecoverableSignature { RecoverableSignature([0; 65]) }
-    /// Create a new (uninitialized) signature usable for the FFI interface
-    #[deprecated(since = "0.7", note = "Please use the new function instead")]
-    pub unsafe fn blank() -> RecoverableSignature { RecoverableSignature::new() }
 }
 
 /// Library-internal representation of an ECDH shared secret
@@ -125,9 +116,6 @@ impl_raw_debug!(SharedSecret);
 impl SharedSecret {
     /// Create a new (zeroed) signature usable for the FFI interface
     pub fn new() -> SharedSecret { SharedSecret([0; 32]) }
-    /// Create a new (uninitialized) signature usable for the FFI interface
-    #[deprecated(since = "0.7", note = "Please use the new function instead")]
-    pub unsafe fn blank() -> SharedSecret { SharedSecret::new() }
 }
 
 extern "C" {
